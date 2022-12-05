@@ -3,7 +3,7 @@
 use std::{fs,collections::{HashMap, HashSet}};
 
 fn main() {
-    let CHAR_SCORES: HashMap<char, u32> = {
+    let char_scores: HashMap<char, u32> = {
         let mut m = HashMap::new();
         let mut start_count: u32 = 1;
         for c in b'a'..=b'z' {
@@ -35,7 +35,7 @@ fn main() {
             sets.get(1).unwrap().contains(c) && sets.get(2).unwrap().contains(c)
         }).unwrap();
 
-        total_count += CHAR_SCORES.get(found_char).unwrap();
+        total_count += char_scores.get(found_char).unwrap();
         println!("current_score: {}, found_char: {}, chars: {:?}", total_count, found_char, chunk)
     }
     
