@@ -1,4 +1,3 @@
-use std::fs;
 
 #[derive(PartialEq, Clone, Copy)]
 enum Move {
@@ -69,12 +68,10 @@ impl Move {
 }
 
 fn main() {
-    let file_path = std::env::args().nth(1).expect("no filepath given");
-    let moves = fs::read_to_string(file_path)
-        .expect("Should have been able to read the file");
+    let file_str = include_str!("../inputs/d02");
 
     let mut total_score = 0;
-    for game in moves.split("\n") {
+    for game in file_str.lines() {
         let mut split_game = game.split(" ");
         let opponnents_move = Move::new(split_game.nth(0).unwrap());
         let desired_outcome = GameResult::new(split_game.nth(0).unwrap());

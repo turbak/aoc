@@ -1,10 +1,7 @@
 #![feature(drain_filter)]
 
-use std::fs;
-
 fn main() {
-    let file_path = std::env::args().nth(1).expect("no filepath given");
-    let file_str = fs::read_to_string(file_path).expect("Should have been able to read the file");
+    let file_str = include_str!("../inputs/d05");
 
     let mut split_input = file_str.split("\n\n");
 

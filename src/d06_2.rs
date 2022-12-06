@@ -1,7 +1,7 @@
 use std::collections::{HashSet, VecDeque};
 
 fn main() {
-    let file_str = include_str!("../input_d06.txt");
+    let file_str = include_str!("../inputs/d06");
 
     println!("found_subsequence index: {} ", calculate_start_of_the_message_marker(file_str, 14));
 }

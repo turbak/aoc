@@ -1,6 +1,6 @@
 #![feature(iter_next_chunk)]
 
-use std::{fs,collections::{HashMap, HashSet}};
+use std::{collections::{HashMap, HashSet}};
 
 fn main() {
     let char_scores: HashMap<char, u32> = {
@@ -19,10 +19,7 @@ fn main() {
         m
     };
 
-    let file_path = std::env::args().nth(1).expect("no filepath given");
-    let str_file = fs::read_to_string(file_path)
-        .expect("Should have been able to read the file");
-
+    let str_file = include_str!("../inputs/d03");
     let mut lines = str_file.lines();
     let mut total_count: u32 = 0;
     while let Ok(chunk) = lines.next_chunk::<3>() {

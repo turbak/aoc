@@ -1,4 +1,3 @@
-use std::fs;
 
 struct Pair {
     first: (i32, i32),
@@ -21,8 +20,7 @@ impl Pair {
 }
 
 fn main() {
-    let file_path = std::env::args().nth(1).expect("no filepath given");
-    let overlaps_count: usize = fs::read_to_string(file_path).expect("fuck you")
+    let overlaps_count: usize = include_str!("../inputs/d04")
         .lines()
         .map(|s| {
             let mut split = s.split(",");
