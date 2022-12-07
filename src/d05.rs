@@ -6,7 +6,6 @@ fn main() {
     let mut split_input = file_str.split("\n\n");
 
     let mut arrangement = parse_arrangement(split_input.next().unwrap());
-    println!("parsed input {:#?}", arrangement);
     let moves = parse_moves(split_input.next().unwrap());
 
     for m in moves {
