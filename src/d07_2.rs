@@ -1,4 +1,4 @@
-use std::{collections::{VecDeque, HashMap}};
+use std::collections::VecDeque;
 
 #[derive(Debug)]
 struct File {
@@ -76,7 +76,7 @@ fn main() {
 
         if size < 100000 {
             return Some(size)
-        }
+        };
         return None
     }).sum();
 

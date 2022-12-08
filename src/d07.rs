@@ -1,4 +1,4 @@
-use std::{collections::{VecDeque, HashMap}};
+use std::collections::VecDeque;
 
 #[derive(Debug)]
 struct File {
