@@ -1,8 +1,8 @@
-use std::{str::FromStr, fmt::Display};
+use std::{fmt::Display, str::FromStr};
 
 enum Op {
     Noop,
-    Addx(i32)
+    Addx(i32),
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -38,7 +38,7 @@ impl Op {
     pub fn execute(&self, register: &mut i32) {
         match self {
             Op::Noop => return,
-            Op::Addx(x) => *register+=x
+            Op::Addx(x) => *register += x,
         }
     }
 
@@ -54,12 +54,17 @@ struct CPU {
     op_queue: Vec<Op>,
     x_register: i32,
     current_op: Op,
-    num_cycles_for_current_op: usize
+    num_cycles_for_current_op: usize,
 }
 
 impl CPU {
     pub fn new(op_queue: Vec<Op>) -> Self {
-        Self { op_queue: op_queue, x_register: 1, current_op: Op::Noop, num_cycles_for_current_op: 0 }
+        Self {
+            op_queue: op_queue,
+            x_register: 1,
+            current_op: Op::Noop,
+            num_cycles_for_current_op: 0,
+        }
     }
 
     pub fn run_cycle(&mut self) {
@@ -73,7 +78,7 @@ impl CPU {
             self.num_cycles_for_current_op = self.current_op.num_cycles();
         }
 
-        self.num_cycles_for_current_op-=1;
+        self.num_cycles_for_current_op -= 1;
     }
 
     fn end_cycle(&mut self) {
@@ -94,11 +99,14 @@ struct CRT {
 
 impl CRT {
     fn new() -> Self {
-        Self { current_column: 0, current_row: 0 }
+        Self {
+            current_column: 0,
+            current_row: 0,
+        }
     }
 
     fn draw_pixel(&mut self, register_value: i32) {
-        self.current_column+= 1;
+        self.current_column += 1;
 
         if register_value - 1 <= self.current_column && register_value + 1 >= self.current_column {
             print!("#")
@@ -133,17 +141,16 @@ impl Device {
     }
 }
 
-
-
 fn main() {
     let operations = include_str!("../inputs/d10")
-    .lines()
-    .map(|l| l.parse::<Op>().unwrap())
-    .rev()
-    .collect();
+        .lines()
+        .map(|l| l.parse::<Op>().unwrap())
+        .rev()
+        .collect();
 
-    Device{
+    Device {
         cpu: CPU::new(operations),
-        crt: CRT::new()
-    }.run()
+        crt: CRT::new(),
+    }
+    .run()
 }
