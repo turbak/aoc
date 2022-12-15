@@ -73,4 +73,12 @@ path = "src/d11.rs"
 name="d11_2"
 path = "src/d11_2.rs"
 
+[[bin]]
+name="d12"
+path = "src/d12.rs"
+
+[[bin]]
+name="d12_2"
+path = "src/d12_2.rs"
+
 [dependencies]
