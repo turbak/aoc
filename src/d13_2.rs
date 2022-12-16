@@ -1,6 +1,6 @@
 #![feature(slice_take)]
 
-use std::{str::FromStr, fmt::Display};
+use std::{str::FromStr, fmt::Display, collections::BinaryHeap};
 
 #[derive(Debug)]
 enum Value {
@@ -52,23 +52,23 @@ impl Ord for Value {
                     for (i, item_x) in x.iter().enumerate() {
                         if let Some(item_y) = y.get(i) {
                             if item_x > item_y {
-                                println!("{} > {}", self, other);
+                                //println!("{} > {}", self, other);
                                 return std::cmp::Ordering::Greater;
                             }
                             if item_x < item_y {
                                 return std::cmp::Ordering::Less;
                             }
                         } else {
-                            println!("{} > {}", self, other);
+                            //println!("{} > {}", self, other);
                             return std::cmp::Ordering::Greater; //right size runs out first
                         }
                     }
 
                     if x.len() == y.len() {
-                        println!("{} == {}", self, other);
+                        //println!("{} == {}", self, other);
                         return std::cmp::Ordering::Equal;
                     }
-                    println!("{} < {}", self, other);
+                    //println!("{} < {}", self, other);
                     return std::cmp::Ordering::Less;
                 },
             },
@@ -93,7 +93,7 @@ impl Eq for Value {}
 impl Value {
     fn from_slice(mut s: &mut &mut [char]) -> Self {
         let mut list = Vec::<Box<Value>>::new();
-        let mut current_num = String::from("");
+        let mut current_num = String::new();
         while let Some(c) = (*s).take_first_mut() {
             if c.is_numeric() {
                 current_num.push(*c);
@@ -125,36 +125,32 @@ impl Value {
     }
 }
 
-#[derive(Debug)]
-struct SignalPair {
-    s1: Value,
-    s2: Value
-}
-
-impl SignalPair {
-    fn new(s1: &str, s2: &str) -> Self {
-        Self { s1: s1.parse().unwrap(), s2: s2.parse().unwrap() }
-    }
-
-    fn is_ordered(&self) -> bool {
-        self.s1 <= self.s2
-    }
-}
-
 fn main() {
-    let ordered_sum: usize = include_str!("../inputs/d13")
+    let mut ordered_signals: BinaryHeap<std::cmp::Reverse<Value>> = include_str!("../inputs/d13")
+    .trim()
     .split("\n\n")
-    .enumerate()
-    .map(|(i, l)| {
-        let mut split = l.lines();
-        if SignalPair::new(split.next().unwrap(), split.next().unwrap()).is_ordered() {
-            println!("{} is ordered", i+1);
-            return i+1;
-        }
-        println!("{} is not ordered", i+1);
-        return 0;
-    })
-    .sum();
+    .map(|l| l.split("\n"))
+    .flatten()
+    .map(|l| std::cmp::Reverse(l.parse().unwrap()))
+    .collect();
 
-    println!("ordered_sum: {}", ordered_sum)
+    let first = "[[2]]";
+    let second = "[[6]]";
+    ordered_signals.push(std::cmp::Reverse(first.parse().unwrap()));
+    ordered_signals.push(std::cmp::Reverse(second.parse().unwrap()));
+
+    let mut first_idx = 0;
+    let mut second_idx = 0;
+    let mut idx = 0;
+    while first_idx == 0 || second_idx == 0 {
+        idx += 1;
+        let found_str = ordered_signals.pop().unwrap().0.to_string();
+        if found_str == first {
+            first_idx = idx
+        }
+        if found_str == second {
+            second_idx = idx
+        }
+    }
+    println!("decoder_key: {}", first_idx*second_idx)
 }
