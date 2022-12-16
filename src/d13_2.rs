@@ -1,6 +1,6 @@
 #![feature(slice_take)]
 
-use std::{str::FromStr, fmt::Display, collections::BinaryHeap};
+use std::{str::FromStr, fmt::Display, collections::BinaryHeap, cmp::{Reverse, Ordering}};
 
 #[derive(Debug)]
 enum Value {
@@ -40,7 +40,7 @@ impl FromStr for Value {
 }
 
 impl Ord for Value {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+    fn cmp(&self, other: &Self) -> Ordering {
         match self {
             Value::Integer(x) => match other {
                 Value::Integer(y) => x.cmp(y),
@@ -53,23 +53,23 @@ impl Ord for Value {
                         if let Some(item_y) = y.get(i) {
                             if item_x > item_y {
                                 //println!("{} > {}", self, other);
-                                return std::cmp::Ordering::Greater;
+                                return Ordering::Greater;
                             }
                             if item_x < item_y {
-                                return std::cmp::Ordering::Less;
+                                return Ordering::Less;
                             }
                         } else {
                             //println!("{} > {}", self, other);
-                            return std::cmp::Ordering::Greater; //right size runs out first
+                            return Ordering::Greater; //right size runs out first
                         }
                     }
 
                     if x.len() == y.len() {
                         //println!("{} == {}", self, other);
-                        return std::cmp::Ordering::Equal;
+                        return Ordering::Equal;
                     }
                     //println!("{} < {}", self, other);
-                    return std::cmp::Ordering::Less;
+                    return Ordering::Less;
                 },
             },
         }
@@ -77,7 +77,7 @@ impl Ord for Value {
 }
 
 impl PartialOrd for Value {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
@@ -126,18 +126,18 @@ impl Value {
 }
 
 fn main() {
-    let mut ordered_signals: BinaryHeap<std::cmp::Reverse<Value>> = include_str!("../inputs/d13")
+    let mut ordered_signals: BinaryHeap<Reverse<Value>> = include_str!("../inputs/d13")
     .trim()
     .split("\n\n")
     .map(|l| l.split("\n"))
     .flatten()
-    .map(|l| std::cmp::Reverse(l.parse().unwrap()))
+    .map(|l| Reverse(l.parse().unwrap()))
     .collect();
 
     let first = "[[2]]";
     let second = "[[6]]";
-    ordered_signals.push(std::cmp::Reverse(first.parse().unwrap()));
-    ordered_signals.push(std::cmp::Reverse(second.parse().unwrap()));
+    ordered_signals.push(Reverse(first.parse().unwrap()));
+    ordered_signals.push(Reverse(second.parse().unwrap()));
 
     let mut first_idx = 0;
     let mut second_idx = 0;
