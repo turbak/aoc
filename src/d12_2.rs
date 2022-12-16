@@ -105,7 +105,8 @@ fn main() {
 
     let mut min_steps = usize::MAX;
     for start in starts {
-        let current_steps = dijkstra(start, end, &adjacency_list).len(); {
+        let current_steps = dijkstra(start, end, &adjacency_list).len();
+        {
             if current_steps > 0 {
                 min_steps = min_steps.min(current_steps)
             }

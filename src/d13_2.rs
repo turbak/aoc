@@ -1,11 +1,16 @@
 #![feature(slice_take)]
 
-use std::{str::FromStr, fmt::Display, collections::BinaryHeap, cmp::{Reverse, Ordering}};
+use std::{
+    cmp::{Ordering, Reverse},
+    collections::BinaryHeap,
+    fmt::Display,
+    str::FromStr,
+};
 
 #[derive(Debug)]
 enum Value {
     Integer(usize),
-    List(Vec<Box<Value>>)
+    List(Vec<Box<Value>>),
 }
 
 impl Display for Value {
@@ -21,7 +26,7 @@ impl Display for Value {
                     }
                 }
                 write!(f, "]")
-            },
+            }
         }
     }
 }
@@ -44,10 +49,10 @@ impl Ord for Value {
         match self {
             Value::Integer(x) => match other {
                 Value::Integer(y) => x.cmp(y),
-                Value::List(_) => Value::List(vec!(Box::new(Value::Integer(*x)))).cmp(other),
-            }
+                Value::List(_) => Value::List(vec![Box::new(Value::Integer(*x))]).cmp(other),
+            },
             Value::List(x) => match other {
-                Value::Integer(y) => self.cmp(&Value::List(vec!(Box::new(Value::Integer(*y))))),
+                Value::Integer(y) => self.cmp(&Value::List(vec![Box::new(Value::Integer(*y))])),
                 Value::List(y) => {
                     for (i, item_x) in x.iter().enumerate() {
                         if let Some(item_y) = y.get(i) {
@@ -66,7 +71,7 @@ impl Ord for Value {
                         return Ordering::Equal;
                     }
                     return Ordering::Less;
-                },
+                }
             },
         }
     }
@@ -114,7 +119,6 @@ impl Value {
             if c == &']' {
                 return Value::List(list);
             }
-            
         }
 
         return Value::List(list);
@@ -123,12 +127,12 @@ impl Value {
 
 fn main() {
     let mut ordered_signals: BinaryHeap<Reverse<Value>> = include_str!("../inputs/d13")
-    .trim()
-    .split("\n\n")
-    .map(|l| l.split("\n"))
-    .flatten()
-    .map(|l| Reverse(l.parse().unwrap()))
-    .collect();
+        .trim()
+        .split("\n\n")
+        .map(|l| l.split("\n"))
+        .flatten()
+        .map(|l| Reverse(l.parse().unwrap()))
+        .collect();
 
     let first = "[[2]]";
     let second = "[[6]]";
@@ -148,5 +152,5 @@ fn main() {
             second_idx = idx
         }
     }
-    println!("decoder_key: {}", first_idx*second_idx)
+    println!("decoder_key: {}", first_idx * second_idx)
 }

@@ -1,15 +1,15 @@
-use std::{str::FromStr, collections::HashSet};
+use std::{collections::HashSet, str::FromStr};
 
 struct Move {
     direction: Direction,
-    num_of_steps: i64
+    num_of_steps: i64,
 }
 
 enum Direction {
     Up,
     Down,
     Left,
-    Right
+    Right,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -24,7 +24,7 @@ impl FromStr for Direction {
             "D" => Ok(Direction::Down),
             "L" => Ok(Direction::Left),
             "R" => Ok(Direction::Right),
-            _ => Err(ParseDirectionError)
+            _ => Err(ParseDirectionError),
         }
     }
 }
@@ -32,14 +32,14 @@ impl FromStr for Direction {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 struct RopeEnd {
     i: i64,
-    j: i64
+    j: i64,
 }
 
 impl RopeEnd {
     fn new() -> Self {
         Self { i: 0, j: 0 }
     }
-    
+
     fn execute_move(&mut self, direction: &Direction) {
         match direction {
             Direction::Up => self.i += 1,
@@ -62,7 +62,7 @@ impl RopeEnd {
 
         if self.j < rope_end.j {
             self.execute_move(&Direction::Right)
-        } else if self.j > rope_end.j{
+        } else if self.j > rope_end.j {
             self.execute_move(&Direction::Left)
         }
     }
@@ -73,11 +73,9 @@ impl RopeEnd {
 }
 
 fn main() {
-    let moves = include_str!("../inputs/d09")
-    .lines()
-    .map(|l| {
+    let moves = include_str!("../inputs/d09").lines().map(|l| {
         let mut split = l.split(" ");
-        Move{
+        Move {
             direction: split.next().unwrap().parse().unwrap(),
             num_of_steps: split.next().unwrap().parse().unwrap(),
         }

@@ -1,6 +1,10 @@
 #![feature(let_chains)]
 
-use std::{collections::{HashMap, BinaryHeap, HashSet}, hash::{Hasher, Hash}, cmp::Ordering};
+use std::{
+    cmp::Ordering,
+    collections::{BinaryHeap, HashMap, HashSet},
+    hash::{Hash, Hasher},
+};
 #[derive(Eq, Debug)]
 struct Vertex {
     height: usize,
@@ -36,8 +40,8 @@ impl<V> PartialEq for Visit<V> {
 
 impl<V> Eq for Visit<V> {}
 
-impl  Vertex {
-    fn new(c: char, i: usize, j: usize) -> Vertex  {
+impl Vertex {
+    fn new(c: char, i: usize, j: usize) -> Vertex {
         Vertex {
             height: height_from_char(&c),
             i: i,
@@ -47,14 +51,14 @@ impl  Vertex {
         }
     }
 }
-impl  Hash for Vertex {
+impl Hash for Vertex {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.i.hash(state);
         self.j.hash(state)
     }
 }
 
-impl  PartialEq for Vertex {
+impl PartialEq for Vertex {
     fn eq(&self, other: &Vertex) -> bool {
         self.i == other.i && self.j == other.j
     }
@@ -62,10 +66,15 @@ impl  PartialEq for Vertex {
 
 fn main() {
     let grid: Vec<Vec<Vertex>> = include_str!("../inputs/d12_test")
-    .lines()
-    .enumerate()
-    .map(|(i, l)| l.chars().enumerate().map(|(j, c)| Vertex::new(c, i, j)).collect())
-    .collect();
+        .lines()
+        .enumerate()
+        .map(|(i, l)| {
+            l.chars()
+                .enumerate()
+                .map(|(j, c)| Vertex::new(c, i, j))
+                .collect()
+        })
+        .collect();
 
     let mut vec_map = HashMap::<(i32, i32), &Vertex>::new();
     grid.iter().for_each(|v| {
@@ -81,7 +90,7 @@ fn main() {
             let j = j1 as i32;
             let i = i1 as i32;
             let entry = adjacency_list.entry(vrtx).or_insert(Vec::new());
-            for pos in vec![(i,j-1), (i,j+1), (i-1,j), (i+1,j)] {
+            for pos in vec![(i, j - 1), (i, j + 1), (i - 1, j), (i + 1, j)] {
                 if let Some(n) = vec_map.get(&pos) {
                     entry.push(*n)
                 }
@@ -89,21 +98,35 @@ fn main() {
         }
     }
 
-    let start = *adjacency_list.iter().find(|(v, _)| (**v).is_start).unwrap().0;
+    let start = *adjacency_list
+        .iter()
+        .find(|(v, _)| (**v).is_start)
+        .unwrap()
+        .0;
     let end = *adjacency_list.iter().find(|(v, _)| (**v).is_end).unwrap().0;
 
-    println!("steps taken: {}",dijkstra(start, end, adjacency_list).len());
+    println!(
+        "steps taken: {}",
+        dijkstra(start, end, adjacency_list).len()
+    );
 }
 
-fn dijkstra <'a> (start: &'a Vertex, end: &'a Vertex, adjacency_list: HashMap<&'a Vertex, Vec<&'a Vertex>>) -> Vec<&'a Vertex> {
+fn dijkstra<'a>(
+    start: &'a Vertex,
+    end: &'a Vertex,
+    adjacency_list: HashMap<&'a Vertex, Vec<&'a Vertex>>,
+) -> Vec<&'a Vertex> {
     let mut unexplored = BinaryHeap::new();
     let mut distances = HashMap::<&Vertex, usize>::new();
     let mut visited = HashSet::new();
     let mut path = HashMap::new();
 
     distances.insert(start, 0);
-    unexplored.push(Visit{ vertex: start, distance: 0});
-    
+    unexplored.push(Visit {
+        vertex: start,
+        distance: 0,
+    });
+
     while let Some(Visit { vertex, distance }) = unexplored.pop() {
         if !visited.insert(vertex) {
             continue;
@@ -174,6 +197,6 @@ fn height_from_char(c: &char) -> usize {
         'z' => 26,
         'S' => 1,
         'E' => 26,
-        _ => todo!()
+        _ => todo!(),
     }
 }

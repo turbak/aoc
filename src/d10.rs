@@ -1,8 +1,8 @@
-use std::{str::FromStr, fmt::Display};
+use std::{fmt::Display, str::FromStr};
 
 enum Op {
     Noop,
-    Addx(i32)
+    Addx(i32),
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -39,7 +39,7 @@ impl Op {
         println!("{} ", self);
         match self {
             Op::Noop => return,
-            Op::Addx(x) => *register+=x
+            Op::Addx(x) => *register += x,
         }
     }
 
@@ -55,12 +55,17 @@ struct CPU {
     op_queue: Vec<Op>,
     x_register: i32,
     current_op: Op,
-    num_cycles_for_current_op: usize
+    num_cycles_for_current_op: usize,
 }
 
 impl CPU {
     fn new(op_queue: Vec<Op>) -> Self {
-        Self { op_queue: op_queue, x_register: 1, current_op: Op::Noop, num_cycles_for_current_op: 0 }
+        Self {
+            op_queue: op_queue,
+            x_register: 1,
+            current_op: Op::Noop,
+            num_cycles_for_current_op: 0,
+        }
     }
 
     fn run_cycle(&mut self) {
@@ -69,16 +74,16 @@ impl CPU {
             self.current_op = self.op_queue.pop().unwrap_or(Op::Noop);
             self.num_cycles_for_current_op = self.current_op.num_cycles();
         }
-        self.num_cycles_for_current_op-=1;
+        self.num_cycles_for_current_op -= 1;
     }
 }
 
 fn main() {
     let operations = include_str!("../inputs/d10")
-    .lines()
-    .map(|l| l.parse::<Op>().unwrap())
-    .rev()
-    .collect();
+        .lines()
+        .map(|l| l.parse::<Op>().unwrap())
+        .rev()
+        .collect();
 
     let mut cpu = CPU::new(operations);
     let mut sum_of_signal_strength = 0;
@@ -88,9 +93,9 @@ fn main() {
     for cycle_check in cycle_check_vec.iter() {
         for _ in cycle_num..*cycle_check {
             cpu.run_cycle();
-            cycle_num+=1;
+            cycle_num += 1;
         }
-        let signal_str = cpu.x_register*cycle_num;
+        let signal_str = cpu.x_register * cycle_num;
         sum_of_signal_strength += signal_str;
     }
 

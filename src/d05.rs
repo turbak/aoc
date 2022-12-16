@@ -9,12 +9,24 @@ fn main() {
     let moves = parse_moves(split_input.next().unwrap());
 
     for m in moves {
-        let final_len = arrangement.get(m.from - 1).unwrap().len().saturating_sub(m.count);
-        let mut elems = arrangement.get_mut(m.from - 1).unwrap().split_off(final_len);
+        let final_len = arrangement
+            .get(m.from - 1)
+            .unwrap()
+            .len()
+            .saturating_sub(m.count);
+        let mut elems = arrangement
+            .get_mut(m.from - 1)
+            .unwrap()
+            .split_off(final_len);
         arrangement.get_mut(m.to - 1).unwrap().append(&mut elems);
     }
 
-    let res: String = arrangement.iter_mut().map(|item| item.pop()).filter(|opt| opt.is_some()).flatten().collect();
+    let res: String = arrangement
+        .iter_mut()
+        .map(|item| item.pop())
+        .filter(|opt| opt.is_some())
+        .flatten()
+        .collect();
     println!("total_combination: {}", res)
 }
 

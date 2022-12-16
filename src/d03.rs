@@ -1,6 +1,6 @@
 #![feature(iter_next_chunk)]
 
-use std::{collections::{HashMap, HashSet}};
+use std::collections::{HashMap, HashSet};
 
 fn main() {
     let char_scores: HashMap<char, u32> = {
@@ -28,14 +28,19 @@ fn main() {
             sets.push(s.chars().collect())
         }
 
-        let found_char = sets.get(0).unwrap().into_iter().find(|c| {
-            sets.get(1).unwrap().contains(c) && sets.get(2).unwrap().contains(c)
-        }).unwrap();
+        let found_char = sets
+            .get(0)
+            .unwrap()
+            .into_iter()
+            .find(|c| sets.get(1).unwrap().contains(c) && sets.get(2).unwrap().contains(c))
+            .unwrap();
 
         total_count += char_scores.get(found_char).unwrap();
-        println!("current_score: {}, found_char: {}, chars: {:?}", total_count, found_char, chunk)
+        println!(
+            "current_score: {}, found_char: {}, chars: {:?}",
+            total_count, found_char, chunk
+        )
     }
-    
 
     println!("total_score: {}", total_count);
 }

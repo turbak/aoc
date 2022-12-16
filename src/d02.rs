@@ -1,16 +1,15 @@
-
 #[derive(PartialEq, Clone, Copy)]
 enum Move {
     Rock,
     Paper,
-    Scissors
+    Scissors,
 }
 
 #[derive(PartialEq, Clone, Copy)]
 enum GameResult {
     Win,
     Loss,
-    Draw
+    Draw,
 }
 
 impl GameResult {
@@ -19,7 +18,7 @@ impl GameResult {
             "X" => GameResult::Loss,
             "Y" => GameResult::Draw,
             "Z" => GameResult::Win,
-            &_ => todo!()
+            &_ => todo!(),
         }
     }
 
@@ -38,7 +37,7 @@ impl Move {
             "A" => Move::Rock,
             "B" => Move::Paper,
             "C" => Move::Scissors,
-            &_ => todo!()
+            &_ => todo!(),
         }
     }
 
@@ -98,7 +97,7 @@ fn pick_move(desired_outcome: GameResult, opponnents_move: Move) -> Move {
 fn play_move(my_move: Move, opponnents_move: Move) -> i32 {
     let my_beats = my_move.beats();
     let opponnents_beats = opponnents_move.beats();
-    
+
     if my_beats == opponnents_move {
         return GameResult::Win.score() + my_move.score();
     }

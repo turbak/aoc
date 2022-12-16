@@ -15,28 +15,32 @@ impl File {
             return self.size;
         }
 
-        let size = self.children.iter()
-        .map(|c| all_files.get(*c).unwrap().size(all_files))
-        .sum();
-        println!("sizing not dir {}, size: {}, children: {:?}", self.name, size, self.children);
-        return size
+        let size = self
+            .children
+            .iter()
+            .map(|c| all_files.get(*c).unwrap().size(all_files))
+            .sum();
+        println!(
+            "sizing not dir {}, size: {}, children: {:?}",
+            self.name, size, self.children
+        );
+        return size;
     }
 }
 
 fn main() {
     let mut split_lines = include_str!("../inputs/d07").lines().map(|l| l.split(" "));
 
-
     let mut all_files = VecDeque::<File>::new();
 
-    all_files.push_front(File{
+    all_files.push_front(File {
         name: "/".into(),
         children: Vec::new(),
         parent: 0,
         is_dir: true,
         size: 0,
     });
-    
+
     let mut current_dir: usize = 0;
 
     split_lines.next();
@@ -51,12 +55,14 @@ fn main() {
                 if name == ".." {
                     current_dir = all_files.get(current_dir).unwrap().parent.clone()
                 } else {
-                    current_dir = all_files.get(current_dir).unwrap()
-                    .children
-                    .iter()
-                    .find(|idx| all_files.get(**idx).unwrap().name == name)
-                    .unwrap()
-                    .clone();
+                    current_dir = all_files
+                        .get(current_dir)
+                        .unwrap()
+                        .children
+                        .iter()
+                        .find(|idx| all_files.get(**idx).unwrap().name == name)
+                        .unwrap()
+                        .clone();
                 }
             }
             continue;
@@ -69,17 +75,20 @@ fn main() {
         all_files.push_back(new_file);
     }
 
-    let sum: usize = all_files.iter().filter_map(|f| {
-        if !f.is_dir || f.name == "/" {
-            return None;
-        }
-        let size = f.size(&all_files);
+    let sum: usize = all_files
+        .iter()
+        .filter_map(|f| {
+            if !f.is_dir || f.name == "/" {
+                return None;
+            }
+            let size = f.size(&all_files);
 
-        if size < 100000 {
-            return Some(size)
-        }
-        return None
-    }).sum();
+            if size < 100000 {
+                return Some(size);
+            }
+            return None;
+        })
+        .sum();
 
     println!("sum: {}", sum);
 }

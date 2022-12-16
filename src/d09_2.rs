@@ -1,15 +1,18 @@
-use std::{str::FromStr, collections::{HashSet, VecDeque}};
+use std::{
+    collections::{HashSet, VecDeque},
+    str::FromStr,
+};
 
 struct Move {
     direction: Direction,
-    num_of_steps: i64
+    num_of_steps: i64,
 }
 
 enum Direction {
     Up,
     Down,
     Left,
-    Right
+    Right,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -24,7 +27,7 @@ impl FromStr for Direction {
             "D" => Ok(Direction::Down),
             "L" => Ok(Direction::Left),
             "R" => Ok(Direction::Right),
-            _ => Err(ParseDirectionError)
+            _ => Err(ParseDirectionError),
         }
     }
 }
@@ -32,14 +35,14 @@ impl FromStr for Direction {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 struct Knot {
     i: i64,
-    j: i64
+    j: i64,
 }
 
 impl Knot {
     fn new() -> Self {
         Self { i: 0, j: 0 }
     }
-    
+
     fn execute_move(&mut self, direction: &Direction) {
         match direction {
             Direction::Up => self.i += 1,
@@ -62,7 +65,7 @@ impl Knot {
 
         if self.j < knot.j {
             self.execute_move(&Direction::Right)
-        } else if self.j > knot.j{
+        } else if self.j > knot.j {
             self.execute_move(&Direction::Left)
         }
     }
@@ -73,11 +76,9 @@ impl Knot {
 }
 
 fn main() {
-    let moves = include_str!("../inputs/d09")
-    .lines()
-    .map(|l| {
+    let moves = include_str!("../inputs/d09").lines().map(|l| {
         let mut split = l.split(" ");
-        Move{
+        Move {
             direction: split.next().unwrap().parse().unwrap(),
             num_of_steps: split.next().unwrap().parse().unwrap(),
         }
@@ -94,7 +95,7 @@ fn main() {
     for m in moves {
         for _ in 0..m.num_of_steps {
             rope.front_mut().unwrap().execute_move(&m.direction);
-            
+
             let mut prev = &rope.front().unwrap().clone();
             for current in rope.iter_mut().skip(1) {
                 current.move_to(prev);

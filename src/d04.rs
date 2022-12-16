@@ -1,4 +1,3 @@
-
 struct Pair {
     first: (i32, i32),
     second: (i32, i32),
@@ -6,10 +5,13 @@ struct Pair {
 
 impl Pair {
     fn is_full_overlap(&self) -> bool {
-        for i in self.first.0..self.first.1+1 {
-            for j in self.second.0..self.second.1+1 {
+        for i in self.first.0..self.first.1 + 1 {
+            for j in self.second.0..self.second.1 + 1 {
                 if i == j {
-                    println!("overlap found: {} between {} and {}", i, self.second.0, self.second.1);
+                    println!(
+                        "overlap found: {} between {} and {}",
+                        i, self.second.0, self.second.1
+                    );
                     return true;
                 }
             }
