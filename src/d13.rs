@@ -13,11 +13,11 @@ impl Display for Value {
         match self {
             Value::Integer(x) => write!(f, "{}", x),
             Value::List(items) => {
-                write!(f, "[");
+                write!(f, "[")?;
                 for (i, item) in items.iter().enumerate() {
-                    item.fmt(f);
+                    item.fmt(f)?;
                     if i < items.len() - 1 {
-                        write!(f, ",");
+                        write!(f, ",")?;
                     }
                 }
                 write!(f, "]")
