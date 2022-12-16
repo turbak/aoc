@@ -13,11 +13,11 @@ impl Display for Value {
         match self {
             Value::Integer(x) => write!(f, "{}", x),
             Value::List(items) => {
-                write!(f, "[");
+                write!(f, "[")?;
                 for (i, item) in items.iter().enumerate() {
-                    item.fmt(f);
+                    item.fmt(f)?;
                     if i < items.len() - 1 {
-                        write!(f, ",");
+                        write!(f, ",")?;
                     }
                 }
                 write!(f, "]")
@@ -52,23 +52,19 @@ impl Ord for Value {
                     for (i, item_x) in x.iter().enumerate() {
                         if let Some(item_y) = y.get(i) {
                             if item_x > item_y {
-                                //println!("{} > {}", self, other);
                                 return Ordering::Greater;
                             }
                             if item_x < item_y {
                                 return Ordering::Less;
                             }
                         } else {
-                            //println!("{} > {}", self, other);
                             return Ordering::Greater; //right size runs out first
                         }
                     }
 
                     if x.len() == y.len() {
-                        //println!("{} == {}", self, other);
                         return Ordering::Equal;
                     }
-                    //println!("{} < {}", self, other);
                     return Ordering::Less;
                 },
             },
