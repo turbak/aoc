@@ -1,4 +1,4 @@
-use std::{collections::{HashMap, VecDeque}, fmt::Display};
+use std::{collections::{HashMap, VecDeque}, fmt::Display, thread::sleep, time};
 
 #[derive(Debug, PartialEq, Eq)]
 enum Material {
@@ -96,6 +96,8 @@ impl Grid {
 
 impl Display for Grid {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::process::Command::new("clear").status().unwrap();
+
         for i in self.i_min..self.i_max+1 {
             for j in self.j_min..self.j_max+1 {
                 write!(f, "{}", self.grid_map.get(&(i, j)).unwrap_or(&Material::Air))?;
@@ -135,7 +137,8 @@ fn main() {
     
     while !(grid.grid_map.get(&(SOURCE_OF_SAND.1, SOURCE_OF_SAND.0)).unwrap() == &Material::Sand) {
         grid.drop_sand_grain();
-        //println!("{}", grid);
+                println!("{}", grid);
+        sleep(time::Duration::from_millis(50));
     }
 
     println!("sand_count: {}", grid.grid_map.iter().filter(|(_, m)| **m == Material::Sand).count());
