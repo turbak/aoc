@@ -1,19 +1,21 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    cmp::Ordering,
+    collections::{BinaryHeap, HashMap, HashSet},
+};
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 struct Valve<'a> {
     name: &'a str,
     flow_rate: usize,
-    is_open: bool,
 }
 
 fn main() {
-    let split_lines = include_str!("../inputs/d16_test")
+    let split_lines = include_str!("../inputs/d16")
         .lines()
         .map(|l| l.split("; "));
 
     let mut valves = HashMap::new();
-    let mut adjecency_matrix = HashMap::new();
+    let mut adjecency_matrix_str = HashMap::new();
     for mut line in split_lines {
         let first = line.next().unwrap();
         let second = line.next().unwrap();
@@ -24,10 +26,9 @@ fn main() {
             flow_rate: valve_split.skip(2).next().unwrap()["rate=".len()..]
                 .parse()
                 .unwrap(),
-            is_open: false,
         };
 
-        adjecency_matrix.insert(
+        adjecency_matrix_str.insert(
             valve.name,
             second
                 .split(" ")
@@ -37,126 +38,162 @@ fn main() {
         );
         valves.insert(valve.name, valve);
     }
-    println!("{:#?}", adjecency_matrix);
-    println!("solved: {}", solve(&mut valves, adjecency_matrix))
-}
 
-type Path<'a> = Vec<&'a str>;
+    let adjacency_matrix: HashMap<&Valve, Vec<&Valve>> = adjecency_matrix_str
+        .iter()
+        .map(|(v, names)| {
+            let valve = valves.get(v).unwrap();
+            let neighbours = names
+                .iter()
+                .map(|name| valves.get(name).unwrap())
+                .collect::<Vec<&Valve>>();
+            return (valve, neighbours);
+        })
+        .collect();
+
+    let mut distances = HashMap::<&Valve, HashMap<&Valve, usize>>::new();
+    valves.iter().for_each(|(_, v)| {
+        distances.insert(v, dijkstra(v, &adjacency_matrix));
+    });
+
+    let distances_from_start: HashMap<&Valve, usize> = distances
+        .get(valves.get("AA").unwrap())
+        .unwrap()
+        .iter()
+        .filter_map(|(v, d)| {
+            if v.flow_rate > 0 {
+                return Some((*v, *d));
+            }
+            return None;
+        })
+        .collect();
+
+    distances = distances
+        .iter()
+        .filter_map(|(v, d)| {
+            if v.flow_rate <= 0 {
+                return None;
+            }
+            let filtered_map = d
+                .iter()
+                .filter_map(|(valve, distance)| {
+                    if valve.flow_rate > 0 {
+                        return Some((*valve, *distance));
+                    }
+                    None
+                })
+                .collect::<HashMap<&Valve, usize>>();
+            return Some((*v, filtered_map));
+        })
+        .collect();
+
+    println!("from_start: {:#?}", distances_from_start);
+    println!("distances: {:#?}", distances);
+
+    let mut max_flow = 0;
+    for (neighbour, distance) in distances_from_start {
+        max_flow = max_flow.max(find_max_flow(
+            neighbour,
+            &distances,
+            distance + 1,
+            HashSet::new(),
+        ))
+    }
+
+    println!("solved: {}", max_flow)
+}
 
 const MAX_MINUTES: usize = 30;
 
-fn solve<'a>(
-    valves: &'a mut HashMap<&'a str, Valve>,
-    adjecency_matrix: HashMap<&str, Vec<&'a str>>,
+fn find_max_flow<'a>(
+    current: &'a Valve,
+    distances: &HashMap<&'a Valve, HashMap<&'a Valve, usize>>,
+    time_spent: usize,
+    mut open_valves: HashSet<&'a Valve<'a>>,
 ) -> usize {
-    let mut paths = Vec::<Path>::new();
+    if time_spent > MAX_MINUTES || !open_valves.insert(current) {
+        return 0;
+    }
 
-    find_all_paths(
-        valves.get("AA").unwrap().name,
-        vec![],
-        valves,
-        &adjecency_matrix,
-        MAX_MINUTES,
-        &mut paths,
-    );
+    if open_valves.len() == distances.len() {
+        return (MAX_MINUTES - time_spent) * current.flow_rate;
+    }
 
-    println!("all path found, calculating best");
+    let mut max_flow = 0;
+    for (neighbour, distance) in distances.get(current).unwrap() {
+        max_flow = max_flow.max(find_max_flow(
+            neighbour,
+            distances,
+            time_spent + distance + 1,
+            open_valves.clone(),
+        ))
+    }
 
-    let best_path = paths
-        .iter()
-        .map(|names| {
-            names
-                .iter()
-                .map(|name| valves.get(name).unwrap())
-                .collect::<Vec<&Valve>>()
-        })
-        .max_by(|x, y| calculate_path_flow(x, false).cmp(&calculate_path_flow(y, false)))
-        .unwrap();
-    println!("best: {:#?}", best_path);
-    calculate_path_flow(&best_path, true)
+    max_flow + (MAX_MINUTES - time_spent) * current.flow_rate
 }
 
-fn calculate_path_flow(valves: &Vec<&Valve>, log_path: bool) -> usize {
-    let mut open_valves = HashSet::<&Valve>::new();
-    let mut total_flow = 0;
-    let mut minutes_left = MAX_MINUTES;
-    let mut valve_iter = valves.iter().skip(1);
-
-    while minutes_left > 0 {
-        let released_pressure = open_valves
-        .iter()
-        .map(|open_valve| open_valve.flow_rate)
-        .sum::<usize>();
-        total_flow += released_pressure;
-
-        if log_path {
-            println!("\n== Minute {} ==", MAX_MINUTES-minutes_left+1);
-            println!("Valves {:?} are open, releasing {} pressure.", open_valves.iter().map(|v| v.name).collect::<Vec<&str>>(), released_pressure);
-        }
-
-        if let Some(next_valve) = valve_iter.next() {
-            if log_path {
-                println!("You move to valve {}.", next_valve.name);
-            }
-            if next_valve.flow_rate > 0 && !open_valves.contains(next_valve) {
-                if minutes_left == 0 {
-                    break;
-                }
-                minutes_left -= 1;
-                if log_path {
-                    println!("\n== Minute {} ==", MAX_MINUTES-minutes_left+1);
-                    println!("Valves {:?} are open, releasing {} pressure.", open_valves.iter().map(|v| v.name).collect::<Vec<&str>>(), released_pressure);
-                    println!("You open valve {}.", next_valve.name);
-                }
-                total_flow += released_pressure;
-                open_valves.insert(next_valve);
-            }
-        }
-        minutes_left -= 1;
-    }
-    total_flow
+#[derive(Debug)]
+struct Visit<V> {
+    vertex: V,
+    distance: usize,
 }
 
-fn find_all_paths<'a>(
-    current_valve: &'a str,
-    mut path: Path<'a>,
-    valves: &mut HashMap<&'a str, Valve>,
-    adjecency_matrix: &HashMap<&str, Vec<&'a str>>,
-    mut minutes_left: usize,
-    visited: &mut Vec<Path<'a>>,
-) {
-    if minutes_left == 0 {
-        visited.push(path);
-        return;
+impl<V> Ord for Visit<V> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        other.distance.cmp(&self.distance)
     }
+}
 
-    path.push(current_valve);
+impl<V> PartialOrd for Visit<V> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
 
-    for name in adjecency_matrix.get(current_valve).unwrap() {
-        if let Some(valve) = valves.get_mut(name) {
-            if valve.flow_rate > 0 && !valve.is_open {
-                if minutes_left == 1 {
-                    continue;
-                }
-                valve.is_open = true;
-                minutes_left -= 1;
-            }
+impl<V> PartialEq for Visit<V> {
+    fn eq(&self, other: &Self) -> bool {
+        self.distance.eq(&other.distance)
+    }
+}
+
+impl<V> Eq for Visit<V> {}
+
+fn dijkstra<'a>(
+    start: &'a Valve,
+    adjacency_list: &HashMap<&'a Valve, Vec<&'a Valve>>,
+) -> HashMap<&'a Valve<'a>, usize> {
+    let mut unexplored = BinaryHeap::new();
+    let mut distances = HashMap::<&Valve, usize>::new();
+    let mut visited = HashSet::new();
+    let mut path = HashMap::new();
+
+    distances.insert(start, 0);
+    unexplored.push(Visit {
+        vertex: start,
+        distance: 0,
+    });
+
+    while let Some(Visit { vertex, distance }) = unexplored.pop() {
+        if !visited.insert(vertex) {
+            continue;
         }
 
-        find_all_paths(
-            name,
-            path.clone(),
-            valves,
-            adjecency_matrix,
-            minutes_left - 1,
-            visited,
-        );
+        for neighbour in adjacency_list.get(vertex).unwrap().iter() {
+            let new_distance = distance + 1;
+            let is_shorter = distances
+                .get(*neighbour)
+                .map_or(true, |&current| new_distance < current);
 
-        if let Some(valve) = valves.get_mut(name) {
-            if valve.is_open {
-                valve.is_open = false;
-                minutes_left += 1;
+            if is_shorter {
+                distances.insert(*neighbour, new_distance);
+                unexplored.push(Visit {
+                    vertex: *neighbour,
+                    distance: new_distance,
+                });
+                path.insert(*neighbour, vertex);
             }
         }
     }
+
+    return distances;
 }
