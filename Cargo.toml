@@ -117,4 +117,12 @@ path = "src/d16_2.rs"
 name="d16_2_multithreaded"
 path = "src/d16_2_multithreaded.rs"
 
+[[bin]]
+name="d17"
+path = "src/d17.rs"
+
+[[bin]]
+name="d17_2"
+path = "src/d17_2.rs"
+
 [dependencies]

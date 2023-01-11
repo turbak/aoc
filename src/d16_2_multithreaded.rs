@@ -55,6 +55,7 @@ fn main() {
 
     let mut distances = HashMap::<&Valve, HashMap<&Valve, usize>>::new();
 
+    //makes my awful algo to solve everything in under 1 minute
     thread::scope(|s| {
         valves.iter().for_each(|(_, v)| {
             distances.insert(v, dijkstra(v, &adjacency_matrix));
@@ -247,12 +248,12 @@ impl<V> PartialEq for Visit<V> {
 
 impl<V> Eq for Visit<V> {}
 
-fn dijkstra<'a>(
-    start: &'a Valve,
-    adjacency_list: &HashMap<&'a Valve, Vec<&'a Valve>>,
-) -> HashMap<&'a Valve<'a>, usize> {
+fn dijkstra<'a, V>(
+    start: &'a V,
+    adjacency_list: &'a HashMap<&'a V, Vec<&'a V>>,
+) -> HashMap<&'a V, usize> where V: Eq, V: std::hash::Hash {
     let mut unexplored = BinaryHeap::new();
-    let mut distances = HashMap::<&Valve, usize>::new();
+    let mut distances = HashMap::<&V, usize>::new();
     let mut visited = HashSet::new();
     let mut path = HashMap::new();
 
@@ -270,7 +271,7 @@ fn dijkstra<'a>(
         for neighbour in adjacency_list.get(vertex).unwrap().iter() {
             let new_distance = distance + 1;
             let is_shorter = distances
-                .get(*neighbour)
+                .get(neighbour)
                 .map_or(true, |&current| new_distance < current);
 
             if is_shorter {
