@@ -148,7 +148,7 @@ impl Chamber {
 
 const NUM_OF_ROCKS: usize = 1000000000000;
 fn main() {
-    let directions: Vec<Direction> = include_str!("../inputs/d17_test")
+    let directions: Vec<Direction> = include_str!("../inputs/d17")
         .chars()
         .map(|c| Direction::new(c))
         .collect();
