@@ -1,5 +1,7 @@
 use std::{str::FromStr, collections::{HashMap, HashSet}};
 
+use kiss3d::{light::Light, window::Window, nalgebra::Translation3};
+
 const NUMBER_OF_SIDES:usize = 6;
 
 #[derive(PartialEq, Eq, Hash, Debug)]
@@ -56,4 +58,21 @@ fn main() {
     println!("{:#?}", cube_adjacent_count);
     let res: usize = cube_adjacent_count.iter().map(|(_, neighbours)| NUMBER_OF_SIDES - neighbours.len()).sum();
     println!("total surface area: {}", res);
+    #[cfg(debug_assertions)]
+    display(&cubes.iter().collect())
+}
+
+fn display(cubes: &Vec<&Cube>) {
+    let mut window = Window::new("aoc d18");
+    let mut g = window.add_group();
+
+    g.set_color(0.8,0.8,0.8);
+    cubes.iter().for_each(|c| {
+        let mut cb = g.add_cube(1.0, 1.0, 1.0);
+        cb.append_translation(&Translation3::new(c.x as f32, c.y as f32, c.z as f32))
+    });
+
+    window.set_light(Light::StickToCamera);
+
+    while window.render() {}
 }

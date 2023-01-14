@@ -134,3 +134,4 @@ name="d18_2"
 path = "src/d18_2.rs"
 
 [dependencies]
+kiss3d = "0.32"
