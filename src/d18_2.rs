@@ -40,15 +40,6 @@ impl FromStr for Cube {
     }
 }
 
-impl Cube {
-    fn is_adjacent(&self, other: &Cube) -> bool {
-        return (self.x.max(other.x) - self.x.min(other.x))
-            + (self.y.max(other.y) - self.y.min(other.y))
-            + (self.z.max(other.z) - self.z.min(other.z))
-            == 1;
-    }
-}
-
 fn main() {
     let mut cubes: Vec<Cube> = include_str!("../inputs/d18")
         .lines()
@@ -60,9 +51,9 @@ fn main() {
     let mut z_max = 0;
 
     for c in cubes.iter_mut() {
-        c.x +=1;
-        c.y+=1;
-        c.z+=1;
+        c.x += 1;
+        c.y += 1;
+        c.z += 1;
         x_max = x_max.max(c.x);
         y_max = y_max.max(c.y);
         z_max = z_max.max(c.z);
@@ -86,7 +77,6 @@ fn main() {
     }
 
     bfs(&mut area);
-    println!("{:?}", area);
 
     let total_sides_exposed: usize = area
         .iter()
@@ -102,7 +92,7 @@ fn main() {
 
     println!("total sides exposed: {}", total_sides_exposed);
 
-    let to_display = area
+    let to_display: Vec<&Cube> = area
         .iter()
         .flatten()
         .flatten()

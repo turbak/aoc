@@ -133,5 +133,15 @@ path = "src/d18.rs"
 name="d18_2"
 path = "src/d18_2.rs"
 
+[[bin]]
+name="d19"
+path = "src/d19.rs"
+
+[[bin]]
+name="d19_2"
+path = "src/d19_2.rs"
+
 [dependencies]
 kiss3d = "0.32"
+strum_macros = "0.24"
+strum = "0.24"
