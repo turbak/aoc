@@ -1,16 +1,4 @@
----@param filename string
----@return string[]?
-local function readInput(filename)
-    local file = io.open(filename, "r")
-    if not file then return nil end
-
-    local lines = {}
-    for line in file:lines() do
-        table.insert(lines, line)
-    end
-    file:close()
-    return lines
-end
+local aocUtils = require("aoc_utils")
 
 local FILENAME = "inputs/d01"
 
@@ -30,7 +18,7 @@ local MIN_NUMBER_NAME_LEN = 3
 local MAX_NUMBER_NAME_LEN = 5
 
 local function solution()
-    local lines = readInput(FILENAME)
+    local lines = aocUtils.readInput(FILENAME)
     if not lines then return end
 
     local sum = 0
