@@ -43,23 +43,21 @@ fn part_1(left: []i32, right: []i32) void {
 
 fn part_2(left: []i32, right: []i32) void {
     var res: u32 = 0;
-    var last_num: i32 = left[0];
-    var start_idx: usize = 0;
-    var end_idx: usize = 0;
+    var right_idx: usize = 0;
+
     for (left) |left_num| {
-        if (left_num > last_num) {
-            last_num = left_num;
-            start_idx = end_idx;
-        }
         var num_occurances: u32 = 0;
-        for (right, start_idx..) |right_num, j| {
-            if (left_num == right_num) {
-                num_occurances += 1;
-            } else if (left_num < right_num) {
-                end_idx = j;
-                break;
-            }
+
+        while (right_idx < right.len and right[right_idx] < left_num) {
+            right_idx += 1;
         }
+
+        var tmp_idx = right_idx;
+        while (tmp_idx < right.len and right[tmp_idx] == left_num) {
+            num_occurances += 1;
+            tmp_idx += 1;
+        }
+
         const left_as_uint: u32 = @intCast(left_num);
         res += left_as_uint * num_occurances;
     }
