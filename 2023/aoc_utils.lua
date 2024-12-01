@@ -4,7 +4,7 @@ local aocUtils = {}
 ---@param filename string
 ---@return string[]?
 function aocUtils.readInput(filename)
-    local file = io.open(filename, "r")
+    local file = assert(io.open(filename, "r"), "failed to open file")
     if not file then return nil end
 
     local lines = {}
