@@ -42,11 +42,11 @@ fn part_1(left: []i32, right: []i32) void {
 }
 
 fn part_2(left: []i32, right: []i32) void {
-    var res: u32 = 0;
+    var res: isize = 0;
     var right_idx: usize = 0;
 
     for (left) |left_num| {
-        var num_occurances: u32 = 0;
+        var num_occurances: isize = 0;
 
         while (right_idx < right.len and right[right_idx] < left_num) {
             right_idx += 1;
@@ -58,8 +58,7 @@ fn part_2(left: []i32, right: []i32) void {
             tmp_idx += 1;
         }
 
-        const left_as_uint: u32 = @intCast(left_num);
-        res += left_as_uint * num_occurances;
+        res += left_num * num_occurances;
     }
 
     std.debug.print("2. resulting similarity score is {d}\n", .{res});
