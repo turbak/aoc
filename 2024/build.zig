@@ -42,7 +42,10 @@ pub fn build(b: *std.Build) !void {
             run_cmd.addArgs(args);
         }
 
-        const run_step = b.step("run", "Run the app");
+        const step_name = try std.fmt.allocPrint(allocator, "{s} {s}", .{ "run", entry.basename });
+        defer allocator.free(step_name);
+
+        const run_step = b.step(step_name, "Run the app");
         run_step.dependOn(&run_cmd.step);
     }
 }
