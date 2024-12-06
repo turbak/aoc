@@ -71,21 +71,20 @@ fn part_1(map: [][]u8, guard_pos: RowAndColIdx) void {
 
 fn part_2(allocator: std.mem.Allocator, map: [][]u8, guard_pos: RowAndColIdx) !void {
     var total_blocks_placed: usize = 0;
-    var iter = GridIter{ .grid = map, .pos = guard_pos, .dir = Direction.Up };
-    while (iter.next()) |row_and_col| {
-        map[row_and_col.row_idx][row_and_col.col_idx] = OBSTACLE;
-        if (try isCyclic(allocator, map, guard_pos)) {
-            total_blocks_placed += 1;
+    for (map, 0..map.len) |row, row_idx| {
+        for (row, 0..row.len) |elem, col_idx| {
+            if (elem != UNVISITED_MARK) {
+                continue;
+            }
+            map[row_idx][col_idx] = OBSTACLE;
+            if (try isCyclic(allocator, map, guard_pos)) {
+                total_blocks_placed += 1;
+            }
+            map[row_idx][col_idx] = UNVISITED_MARK;
         }
-        map[row_and_col.row_idx][row_and_col.col_idx] = UNVISITED_MARK;
     }
 
-    for (map) |row| {
-        std.debug.print("{s}\n", .{row});
-    }
-    std.debug.print("\n", .{});
-
-    std.debug.print("2. {d} different positions could you choose for this obstruction.\n", .{total_blocks_placed - 1});
+    std.debug.print("2. {d} different positions could you choose for this obstruction.\n", .{total_blocks_placed});
 }
 
 fn isCyclic(allocator: std.mem.Allocator, map: [][]u8, guard_pos: RowAndColIdx) !bool {
