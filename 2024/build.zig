@@ -24,6 +24,10 @@ pub fn build(b: *std.Build) !void {
         if (entry.kind != .file) {
             continue;
         }
+
+        if (entry.basename.len < 4 or !std.mem.eql(u8, entry.basename[entry.basename.len - 4 ..], ".zig")) {
+            continue;
+        }
         std.debug.print("{s}\n", .{entry.path});
 
         const exe = b.addExecutable(.{
