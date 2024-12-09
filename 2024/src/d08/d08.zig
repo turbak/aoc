@@ -90,6 +90,7 @@ fn part_2(allocator: std.mem.Allocator, grid: [][]u8, antennas: []Antenna) !void
             }
 
             const new_antinodes = try antenna_1.pos.all_antinodes_within_bounds(allocator, antenna_2.pos, grid.len, grid[0].len);
+            defer allocator.free(new_antinodes);
             try antinodes.appendSlice(new_antinodes);
         }
     }
