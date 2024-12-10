@@ -84,34 +84,6 @@ fn dfs(allocator: std.mem.Allocator, map: Map, start: XandY, unique: bool) !usiz
     return total_paths;
 }
 
-fn bfs(allocator: std.mem.Allocator, map: Map, start: XandY) !usize {
-    var total_paths: usize = 0;
-    var queue = ArrayList(XandY).init(allocator);
-    defer queue.deinit();
-
-    var visited = std.AutoArrayHashMap(XandY, bool).init(allocator);
-    defer visited.deinit();
-
-    try queue.append(start);
-    while (queue.popOrNull()) |current| {
-        if (map.get(current) == 9) {
-            total_paths += 1;
-        }
-
-        try visited.put(current, true);
-
-        const neighbors = try map.neighbors(allocator, current);
-        defer allocator.free(neighbors);
-        for (neighbors) |neighbor| {
-            if (visited.get(current) != null) {
-                continue;
-            }
-            try queue.append(neighbor);
-        }
-    }
-    return total_paths;
-}
-
 const XandY = struct {
     x: usize,
     y: usize,
