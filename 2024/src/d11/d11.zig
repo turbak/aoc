@@ -122,12 +122,7 @@ const Rule = enum {
 
     fn apply(self: Rule, num: usize) ?OneOrTwo {
         return switch (self) {
-            .Replace => {
-                if (num == 0) {
-                    return OneOrTwo{ .one = 1 };
-                }
-                return null;
-            },
+            .Replace => if (num == 0) OneOrTwo{ .one = 1 } else null,
             .Split => {
                 const digit_count = count_digits(num);
                 if (digit_count % 2 == 0) {

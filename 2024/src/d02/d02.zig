@@ -2,12 +2,14 @@ const std = @import("std");
 const ArrayList = std.ArrayList;
 
 const PATH = "inputs/d02";
-const allocator = std.heap.page_allocator;
 
 pub fn main() !void {
     const file = try std.fs.cwd().openFile(PATH, .{});
     var buf_reader = std.io.bufferedReader(file.reader());
     var in_stream = buf_reader.reader();
+
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
 
     var reportsList = ArrayList(ArrayList(isize)).init(allocator);
     defer reportsList.deinit();
@@ -26,7 +28,7 @@ pub fn main() !void {
     }
 
     part_1(reportsList);
-    try part_2(reportsList);
+    try part_2(allocator, reportsList);
 }
 
 fn isSafe(report: []const isize) bool {
@@ -53,84 +55,32 @@ fn isSafe(report: []const isize) bool {
     return true;
 }
 
-fn isSafeRemovingOne(report: []const isize) !bool {
-    var decreasing = false;
-    var increasing = false;
-    for (0..report.len - 1) |i| {
-        const current = report[i];
-        const next = report[i + 1];
-
-        var tmpDecreasing = decreasing;
-        var tmpIncreasing = increasing;
-        if (current < next) {
-            tmpIncreasing = true;
-        } else if (current > next) {
-            tmpDecreasing = true;
-        }
-
-        if (tmpDecreasing and tmpIncreasing or
-            @abs(current - next) < 1 or @abs(current - next) > 3)
-        {
-            var reportWithRemovedCurrent = try ArrayList(isize).initCapacity(allocator, report.len - 1);
-            defer reportWithRemovedCurrent.deinit();
-
-            for (report, 0..report.len) |item, j| {
-                if (i == j) {
-                    continue;
-                }
-                try reportWithRemovedCurrent.append(item);
-            }
-
-            var reportWithRemovedNext = try ArrayList(isize).initCapacity(allocator, report.len - 1);
-            defer reportWithRemovedNext.deinit();
-
-            for (report, 0..report.len) |item, j| {
-                if (i + 1 == j) {
-                    continue;
-                }
-                try reportWithRemovedNext.append(item);
-            }
-
-            var reportWithRemovedPrevious = try ArrayList(isize).initCapacity(allocator, report.len - 1);
-            defer reportWithRemovedPrevious.deinit();
-
-            for (report, 0..report.len) |item, j| {
-                if (i > 0 and i - 1 == j) {
-                    continue;
-                }
-                try reportWithRemovedPrevious.append(item);
-            }
-
-            return isSafe(reportWithRemovedNext.items) or isSafe(reportWithRemovedCurrent.items) or isSafe(reportWithRemovedPrevious.items);
-        }
-
-        decreasing = tmpDecreasing;
-        increasing = tmpIncreasing;
-    }
-    return true;
-}
-
 fn part_1(reportsList: ArrayList(ArrayList(isize))) void {
     var total: usize = 0;
     for (reportsList.items) |report| {
         if (isSafe(report.items)) {
-            //std.debug.print("SAFE:   {any}\n", .{report.items});
             total += 1;
-        } else {
-            //std.debug.print("UNSAFE: {any}\n", .{report.items});
         }
     }
     std.debug.print("1. Total number of safe reports is {d}\n", .{total});
 }
 
-fn part_2(reportsList: ArrayList(ArrayList(isize))) !void {
+fn part_2(allocator: std.mem.Allocator, reportsList: ArrayList(ArrayList(isize))) !void {
     var total: usize = 0;
     for (reportsList.items) |report| {
-        if (try isSafeRemovingOne(report.items)) {
-            std.debug.print("SAFE:   {any}\n", .{report.items});
+        if (isSafe(report.items)) {
             total += 1;
         } else {
-            std.debug.print("UNSAFE: {any}\n", .{report.items});
+            var buf = try allocator.alloc(isize, report.items.len - 1);
+            for (0..report.items.len) |idx| {
+                @memcpy(buf[0..idx], report.items[0..idx]);
+                @memcpy(buf[idx..], report.items[idx + 1 ..]);
+                if (isSafe(buf)) {
+                    total += 1;
+                    break;
+                }
+            }
+            allocator.free(buf);
         }
     }
 
