@@ -52,6 +52,7 @@ pub fn main() !void {
         _ = try in_stream.readUntilDelimiterOrEof(&buf1, '\n') orelse break;
     }
     part_1(machines_list.items);
+    part_2(machines_list.items);
 }
 
 fn part_1(machines: []Machine) void {
@@ -62,18 +63,24 @@ fn part_1(machines: []Machine) void {
     std.debug.print("1. {d} fewest tokens you would have to spend to win all prizes.\n", .{total});
 }
 
+const PART_2_ADDITION: usize = 10000000000000;
+
+// TOO DAMN SLOW
+fn part_2(machines: []Machine) void {
+    var total: usize = 0;
+    for (machines) |machine| {
+        var machine_copy = machine;
+        machine_copy.prize.x += PART_2_ADDITION;
+        machine_copy.prize.y += PART_2_ADDITION;
+        total += machine_copy.solve() orelse 0;
+    }
+    std.debug.print("2. {d} fewest tokens you would have to spend to win all prizes.\n", .{total});
+}
+
 const Machine = struct {
     button_a: ButtonAction,
     button_b: ButtonAction,
     prize: Prize,
-
-    fn findXGCD(self: Machine) ?isize {
-        return gcd(self.button_a.x_delta, self.button_b.x_delta);
-    }
-
-    fn solveX(self: Machine) ?std.meta.Tuple(&[_]type{ isize, isize }) {
-        return extended_gcd(self.button_a.x_delta, self.button_b.x_delta, @intCast(self.prize.x));
-    }
 
     fn solve(self: Machine) ?usize {
         var start_x: isize = 0;
@@ -129,46 +136,4 @@ fn gcd(a: isize, b: isize) isize {
         }
     }
     return max_cd;
-}
-
-//•	x = 16800 + k * 11,
-//•	y = -71400 - k * 47.
-fn extended_gcd(a: isize, b: isize, res: isize) ?std.meta.Tuple(&[_]type{ isize, isize }) {
-    const a_b_gcd = gcd(a, b);
-
-    // Ensure the equation has a solution
-    if (@mod(res, a_b_gcd) != 0) {
-        std.debug.print("ERROR_NO_SOLUTION: {d}x + {d}y = {d}\n", .{ a, b, res });
-        return null;
-    }
-
-    // Initialize for the Extended Euclidean Algorithm
-    var s: isize = 0;
-    var old_s: isize = 1;
-    var r: isize = b;
-    var old_r: isize = a;
-
-    // Perform the Extended Euclidean Algorithm
-    while (r != 0) {
-        const quotient: isize = @divFloor(old_r, r);
-
-        // Update remainders
-        const prov_r = r;
-        r = old_r - quotient * r;
-        old_r = prov_r;
-
-        // Update coefficients
-        const prov_s = s;
-        s = old_s - quotient * s;
-        old_s = prov_s;
-    }
-
-    // Scale coefficients to match the result
-    const scale = @divExact(res, a_b_gcd);
-    const x0 = old_s * scale;
-    const y0 = @divExact((res - a * x0), b); // Compute y0 directly from the equation
-
-    std.debug.print("scale: {d}", .{scale});
-
-    return .{ x0, y0 };
 }
