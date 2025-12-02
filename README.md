@@ -15,4 +15,7 @@ https://adventofcode.com/2023
 ## 2024
 My first experience coding in Zig
 
-https://adventofcode.com/2024
+## 2025
+Elixir
+
+https://adventofcode.com
